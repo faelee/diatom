@@ -11,7 +11,8 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
     #flip or flop
     if opType == "flop" or opType == "flip":
         newImgName = str(opType) + "_"+ imageName 
-        myCommand = "convert " + os.path.join (savePath, imageName) + " -" + str(opType) + " " + os.path.join (savePath, newImgName)
+        myCommand = "convert \"" + os.path.join (savePath, imageName) + "\" -" + str(opType) \
+                    + " \"" + os.path.join (savePath, newImgName) + "\""
         newLabelPath = os.path.join (savePath, str(opType) + "_" + labelName)
 
         f = open(newLabelPath, "w+")
@@ -40,7 +41,8 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
     if opType[0:6] == "scale-":
         opType = opType[6:]
         newImgName =  "scl_" + str(opType) + "_" + imageName
-        myCommand = "convert " + " -resize " + str(opType) + "%" + " " + os.path.join (savePath, imageName) + " " + os.path.join (savePath, newImgName)
+        myCommand = "convert " + " -resize " + str(opType) + "%" + " \"" + os.path.join (savePath, imageName) + "\" \"" \
+                    + os.path.join (savePath, newImgName) + "\""
         newLabelPath = "scl_" + str(opType) + "_" + labelName
         newLabelPath = os.path.join (savePath, newLabelPath)
 
@@ -65,7 +67,8 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
     if opType[0:7] == "rotate-":
         opType = opType[7:]
         newImgName = "rot_" + str(opType) + "_deg_"+ imageName
-        myCommand = "convert " + os.path.join (savePath, imageName) + " -rotate -" + str(opType) + " " + os.path.join (savePath, newImgName)
+        myCommand = "convert \"" + os.path.join (savePath, imageName) + "\" -rotate -" + str(opType) \
+                    + " \"" + os.path.join (savePath, newImgName) + "\""
         newLabelPath = "rot_" + str(opType) + "_deg_" + labelName
         newLabelPath = os.path.join (savePath, newLabelPath)
 
@@ -114,7 +117,8 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
     #blur
     if opType == "blur":
         newImgName = "blur_" + imageName
-        myCommand = "convert " + os.path.join (savePath, imageName) + " -blur 2x2 " + os.path.join (savePath, newImgName)
+        myCommand = "convert \"" + os.path.join (savePath, imageName) + "\" -blur 2x2 \"" \
+                    + os.path.join (savePath, newImgName) + "\""
         newLabelPath = "blur_" + labelName
         newLabelPath = os.path.join (savePath, newLabelPath)
 
