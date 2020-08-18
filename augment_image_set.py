@@ -93,10 +93,11 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
             else:
                 (a, b, c, d, e) = int(valueList[0]), float(valueList[1]), float(valueList[2]), float(valueList[3]), \
                                   float(valueList[4])
-                degree = float (opType)
+                degree = float(opType)
                 degree = degree % 180
                 if degree > 90:
-                    degree = 180 - degree
+                    degree = degree - 90
+                extra = float(opType) - degree
 
                 degree = degree * math.pi / 180
                 wcos = width * math.cos(degree)
@@ -104,10 +105,31 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
                 hcos = height * math.cos(degree)
                 hsin = height * math.sin(degree)
 
-                boxx = float ((b * wcos + c * hsin) / (wcos + hsin))
-                boxy = float ((c * hcos + (1 - b) * wsin) / (hcos + wsin))
-                boxWidth = float ((d * wcos + e * hsin) / (wcos + hsin))
-                boxHeight = float ((e * hcos + d * wsin) / (hcos + wsin))
+                xratio = float((b * wcos + c * hsin) / (wcos + hsin))
+                yratio = float((c * hcos + (1 - b) * wsin) / (hcos + wsin))
+                wratio = float((d * wcos + e * hsin) / (wcos + hsin))
+                hratio = float((e * hcos + d * wsin) / (hcos + wsin))
+
+                if float(opType) - degree * 180 / math.pi == 270:
+                    boxx = 1 - yratio
+                    boxy = xratio
+                    boxWidth = hratio
+                    boxHeight = wratio
+                elif float(opType) - degree * 180 / math.pi == 180:
+                    boxx = 1 - xratio
+                    boxy = yratio
+                    boxWidth = wratio
+                    boxHeight = hratio
+                elif float(opType) - degree * 180 / math.pi == 90:
+                    boxx = yratio
+                    boxy = 1 - xratio
+                    boxWidth = hratio
+                    boxHeight = wratio
+                else:
+                    boxx = xratio
+                    boxy = yratio
+                    boxWidth = wratio
+                    boxHeight = hratio
 
                 f.write(str (a) + " " + str(boxx) + " " + str(boxy) + " " + str(boxWidth) + " " + str(boxHeight) + "\n")
         f.close ()
@@ -172,8 +194,7 @@ for imageName in orgImageList:
 
     trackImgList = [imageName]
 
-    for ops in [ ["rotate-" + str(x) for x in range (10, 360,10)],
-                 ['blur'], ["flop","flip"], ["scale-50", "scale-200"]]:
+    for ops in [ ["rotate-" + str(x) for x in range (30, 360, 30)] ]:
         tmpImgList = []
         for i in range(0, len(trackImgList)):
             # Read image's width and height
