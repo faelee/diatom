@@ -1,6 +1,6 @@
 from PIL import Image
 
-file = open(input("file name"))
+file = open(input("text name"))
 im = Image.open(input("image name"))
 width, height = im.size
 name = input("new name")
