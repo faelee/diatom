@@ -233,8 +233,8 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
             myCommand = "convert \"" + os.path.join(savePath, imageName) + "\" +sigmoidal-contrast " \
                     + a + "," + b + "% \"" + os.path.join(savePath, newImgName) + "\""
         else:
-            newImgName = "expose_lighten_" + a + "%_" + b + "%_" + imageName
-            newLabelPath = "expose_lighten_" + a + "%_" + b + "%_" + labelName
+            newImgName = "expose_lighten_" + a + "%_Center-" + b + "%_" + imageName
+            newLabelPath = "expose_lighten_" + a + "%_Center-" + b + "%_" + labelName
             myCommand = "convert \"" + os.path.join(savePath, imageName) + "\" -sigmoidal-contrast " \
                         + a + "," + b + "% \"" + os.path.join(savePath, newImgName) + "\""
 
