@@ -228,8 +228,8 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
         b = str(b)
 
         if sign == "+":
-            newImgName = "expose_darken_" + a + "%_" + b + "%_" + imageName
-            newLabelPath = "expose_darken_" + a + "%_" + b + "%_" + labelName
+            newImgName = "expose_darken_" + a + "%_Center-" + b + "%_" + imageName
+            newLabelPath = "expose_darken_" + a + "%_Center-" + b + "%_" + labelName
             myCommand = "convert \"" + os.path.join(savePath, imageName) + "\" +sigmoidal-contrast " \
                     + a + "," + b + "% \"" + os.path.join(savePath, newImgName) + "\""
         else:
