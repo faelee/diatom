@@ -154,7 +154,7 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
             if not line:
                 continue
             valueList = (line.split())
-            print(valueList)
+            #print (valueList)
             a, b, c, d, e = valueList[0], valueList[1], valueList[2], valueList[3], valueList[4]
 
             if opType == "blur":
@@ -194,7 +194,7 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
 
         return myCommand, newImgName
 
-    #grayscale
+    # grayscale
     if opType == "grayscale":
         newImgName = "grayscale_" + imageName
         myCommand = "convert \"" + os.path.join(savePath, imageName) + "\" -colorspace Gray \"" \
@@ -211,7 +211,71 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
             if not line:
                 continue
             valueList = (line.split())
-            print(valueList)
+            #print (valueList)
+            a, b, c, d, e = valueList[0], valueList[1], valueList[2], valueList[3], valueList[4]
+
+            f.write(a + " " + b + " " + c + " " + d + " " + e + "\n")
+        f.close()
+
+        return myCommand, newImgName
+
+    # change exposure
+    if opType[0:6] == "expose":
+        sign = opType[6]
+        opType = opType[7:]
+        (b, a) = opType.split("-")
+        a = str(a)
+        b = str(b)
+
+        if sign == "+":
+            newImgName = "expose_darken_" + a + "%_" + b + "%_" + imageName
+            newLabelPath = "expose_darken_" + a + "%_" + b + "%_" + labelName
+            myCommand = "convert \"" + os.path.join(savePath, imageName) + "\" +sigmoidal-contrast " \
+                    + a + "," + b + "% \"" + os.path.join(savePath, newImgName) + "\""
+        else:
+            newImgName = "expose_lighten_" + a + "%_" + b + "%_" + imageName
+            newLabelPath = "expose_lighten_" + a + "%_" + b + "%_" + labelName
+            myCommand = "convert \"" + os.path.join(savePath, imageName) + "\" -sigmoidal-contrast " \
+                        + a + "," + b + "% \"" + os.path.join(savePath, newImgName) + "\""
+
+        newLabelPath = os.path.join(savePath, newLabelPath)
+
+        f = open(newLabelPath, "w+")
+        with open(labelPath) as fp:
+            lines = fp.readlines()
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            valueList = (line.split())
+            # print(valueList)
+            (a, b, c, d, e) = valueList[0], valueList[1], valueList[2], valueList[3], valueList[4]
+            f.write(a + " " + b + " " + c + " " + d + " " + e + "\n")
+        f.close()
+
+        return myCommand, newImgName
+
+    # brighten/darken
+    if opType[0:11] == "brightness-":
+        opType = opType[11:]
+        newImgName = "brightness_" + str(opType) + "%_" + imageName
+        myCommand = "convert " + " -modulate " + str(opType) + ",100,100" + " \"" + os.path.join(savePath, imageName)  \
+                    + "\" \"" + os.path.join(savePath, newImgName) + "\""
+        newLabelPath = "brightness_" + str(opType) + "%_" + labelName
+        newLabelPath = os.path.join(savePath, newLabelPath)
+
+        f = open(newLabelPath, "w+")
+        with open(labelPath) as fp:
+            lines = fp.readlines()
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            valueList = (line.split())
+            # print(valueList)
             a, b, c, d, e = valueList[0], valueList[1], valueList[2], valueList[3], valueList[4]
 
             f.write(a + " " + b + " " + c + " " + d + " " + e + "\n")
@@ -250,40 +314,23 @@ for imageName in orgImageList:
 
     trackImgList = [imageName]
 
-    tmpImgList = []
-    op = "grayscale"
-    for i in range(0, len(trackImgList)):
-        # Read image's width and height
-        image = Image.open(os.path.join(imageDir, trackImgList[i]))
-        (width, height) = image.size
-        imgNameInProc = trackImgList[i]
-        txtNameInProc = os.path.splitext(imgNameInProc)[0] + '.txt'
-        (myCommand, newImgName) = imgOperation(op, imageDir, imgNameInProc, txtNameInProc, width, height)
-        tmpImgList.append(newImgName)
-            # print("file #: ",str(i +1))
-            # print(myCommand)
-            # time.sleep(5)
-        os.system(myCommand)
-    trackImgList.extend(tmpImgList)
-
-    resultImgList.extend(trackImgList)
-
-    for ops in [["distort-" + "1-" + str(h/10.0) for h in range(9, 13, 2)]]:
-        tmpImgList = []
-        for i in range(0, len(trackImgList)):
-            # Read image's width and height
-            image = Image.open(os.path.join(imageDir, trackImgList[i]))
-            (width, height) = image.size
-            for op in ops:
-                imgNameInProc = trackImgList[i]
-                txtNameInProc = os.path.splitext(imgNameInProc)[0] + '.txt'
-                (myCommand, newImgName) = imgOperation(op, imageDir, imgNameInProc, txtNameInProc, width, height)
-                tmpImgList.append(newImgName)
+    for center in range(10, 60, 10):
+        for ops in [["expose-" + str(center) + "-" + str(h) for h in range(2, 12, 2)]]:
+            tmpImgList = []
+            for i in range(0, len(trackImgList)):
+                # Read image's width and height
+                image = Image.open(os.path.join(imageDir, trackImgList[i]))
+                (width, height) = image.size
+                for op in ops:
+                    imgNameInProc = trackImgList[i]
+                    txtNameInProc = os.path.splitext(imgNameInProc)[0] + '.txt'
+                    (myCommand, newImgName) = imgOperation(op, imageDir, imgNameInProc, txtNameInProc, width, height)
+                    tmpImgList.append(newImgName)
                 # print("file #: ",str(i +1))
                 # print(myCommand)
                 # time.sleep(5)
-                os.system(myCommand)
-        trackImgList.extend(tmpImgList)
+                    os.system(myCommand)
+            trackImgList.extend(tmpImgList)
 
     resultImgList.extend(trackImgList)
 
