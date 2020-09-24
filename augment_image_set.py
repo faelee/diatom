@@ -164,6 +164,7 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
         return myCommand, newImgName
 
     # distort
+    # ex: distort-0.95-1, distort-1-0.95
     if opType[0:8] == "distort-":
         opType = opType[8:]
         (a, b) = opType.split("-")
@@ -219,7 +220,9 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
 
         return myCommand, newImgName
 
-    # change exposure
+    # change contrast
+    # ex: expose+3-50, expose-3-50
+    # https://imagemagick.org/script/command-line-options.php#sigmoidal
     if opType[0:6] == "expose":
         sign = opType[6]
         opType = opType[7:]
@@ -258,6 +261,8 @@ def imgOperation(opType, savePath, imageName, labelName, width, height):
         return myCommand, newImgName
 
     # brighten/darken
+    # https://imagemagick.org/script/command-line-options.php#modulate
+    # ex: brightness-90, brightness-110
     if opType[0:11] == "brightness-":
         opType = opType[11:]
         newImgName = "brightness_" + str(opType) + "%_" + imageName
@@ -314,23 +319,34 @@ for imageName in orgImageList:
 
     trackImgList = [imageName]
 
-    for center in range(10, 60, 10):
-        for ops in [["expose-" + str(center) + "-" + str(h) for h in range(2, 12, 2)]]:
-            tmpImgList = []
-            for i in range(0, len(trackImgList)):
-                # Read image's width and height
-                image = Image.open(os.path.join(imageDir, trackImgList[i]))
-                (width, height) = image.size
-                for op in ops:
-                    imgNameInProc = trackImgList[i]
-                    txtNameInProc = os.path.splitext(imgNameInProc)[0] + '.txt'
-                    (myCommand, newImgName) = imgOperation(op, imageDir, imgNameInProc, txtNameInProc, width, height)
-                    tmpImgList.append(newImgName)
-                # print("file #: ",str(i +1))
-                # print(myCommand)
-                # time.sleep(5)
-                    os.system(myCommand)
-            trackImgList.extend(tmpImgList)
+    expose = []
+    for center in range(20, 60, 20):
+        for h in range(4, 12, 4):
+            expose.append("expose+" + str(center) + "-" + str(h))
+            expose.append("expose-" + str(center) + "-" + str(h))
+
+    bright = []
+    for b in (60, 80, 120, 140):
+        bright.append ("brightness-" + str (b))
+
+    distort = ["distort-0.95-1", "distort-1-0.95"]
+
+    for ops in [expose]:
+        tmpImgList = []
+        for i in range(0, len(trackImgList)):
+            # Read image's width and height
+            image = Image.open(os.path.join(imageDir, trackImgList[i]))
+            (width, height) = image.size
+            for op in ops:
+                imgNameInProc = trackImgList[i]
+                txtNameInProc = os.path.splitext(imgNameInProc)[0] + '.txt'
+                (myCommand, newImgName) = imgOperation(op, imageDir, imgNameInProc, txtNameInProc, width, height)
+                tmpImgList.append(newImgName)
+            # print("file #: ",str(i +1))
+            # print(myCommand)
+            # time.sleep(5)
+                os.system(myCommand)
+        trackImgList.extend(tmpImgList)
 
     resultImgList.extend(trackImgList)
 
